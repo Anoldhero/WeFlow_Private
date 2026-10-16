@@ -1,0 +1,47 @@
+name: zhiliao-production
+services:
+  ai:
+    build: .
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 20s
+    env_file: ${SERVER_ENV_FILE:-.env.production}
+    environment:
+      NODE_ENV: production
+      AI_PROVIDER: compatible
+      HOST: 0.0.0.0
+      PORT: 4310
+      DATABASE_PATH: /app/data/cloud.sqlite
+      TRUSTED_PROXY_CIDRS: 172.30.91.3/32
+    volumes:
+      - cloud-data:/app/data
+    networks:
+      cloud:
+        ipv4_address: 172.30.91.2
+  gateway:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      CLOUD_DOMAIN: ${CLOUD_DOMAIN:?请在 .env.production 中填写正式域名}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      ai:
+        condition: service_healthy
+    networks:
+      cloud:
+        ipv4_address: 172.30.91.3
+networks:
+  cloud:
+    ipam:
+      config:
+        - subnet: 172.30.91.0/29
+volumes:
+  cloud-data:
+  caddy-data:
+  caddy-config:

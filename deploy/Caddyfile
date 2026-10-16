@@ -1,0 +1,5 @@
+{$CLOUD_DOMAIN} {
+    reverse_proxy ai:4310 {
+        flush_interval -1
+    }
+}

@@ -1,0 +1,79 @@
+{
+  "name": "weflow-ai",
+  "productName": "知聊",
+  "version": "0.3.1",
+  "private": true,
+  "description": "本地微信数据与统一云端 AI 工作台",
+  "type": "module",
+  "main": "dist-electron/main.cjs",
+  "packageManager": "pnpm@9.15.4",
+  "engines": { "node": ">=24 <25" },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:desktop": "node scripts/dev.mjs --desktop",
+    "demo": "node scripts/dev.mjs --demo",
+    "demo:desktop": "node scripts/dev.mjs --demo --desktop",
+    "dev:cloud": "node scripts/dev.mjs --cloud",
+    "dev:desktop:cloud": "node scripts/dev.mjs --cloud --desktop",
+    "status": "node scripts/dev-control.mjs status",
+    "stop": "node scripts/dev-control.mjs stop",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/test.mjs",
+    "check:exports": "node scripts/check-report-export.mjs",
+    "check:reports": "node --import tsx scripts/smoke-report.mjs",
+    "build": "node scripts/build.mjs",
+    "build:server": "node scripts/build-server.mjs",
+    "server": "node --env-file-if-exists=.env dist-server/index.mjs",
+    "invite": "node --env-file-if-exists=.env dist-server/invite.mjs",
+    "backup": "node --env-file-if-exists=.env dist-server/backup.mjs",
+    "package": "node scripts/package.mjs",
+    "package:preview": "node scripts/package.mjs --preview"
+  },
+  "dependencies": {
+    "fastify": "^5.6.0",
+    "fzstd": "^0.1.1",
+    "koffi": "^2.9.0",
+    "lucide-react": "^0.562.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-markdown": "^10.1.0",
+    "sherpa-onnx-node": "1.13.3",
+    "silk-wasm": "3.7.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^39.2.7",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.5"
+  },
+  "optionalDependencies": { "sherpa-onnx-win-x64": "1.13.3" },
+  "pnpm": { "onlyBuiltDependencies": ["electron", "esbuild", "koffi"] },
+  "build": {
+    "appId": "local.weflowai.desktop",
+    "productName": "知聊",
+    "artifactName": "Zhiliao-${version}-${arch}-Setup.${ext}",
+    "directories": { "output": "release" },
+    "files": ["dist/**", "dist-electron/**", "package.json", "THIRD-PARTY-NOTICES.md", "vendor/weflow/LICENSE"],
+    "extraResources": [
+      { "from": "resources/native", "to": "resources" },
+      { "from": ".generated/cloud-config.json", "to": "cloud-config.json" }
+    ],
+    "asarUnpack": ["node_modules/koffi/**", "node_modules/sherpa-onnx-*/**", "node_modules/silk-wasm/**"],
+    "electronDist": "node_modules/electron/dist",
+    "extraFiles": [
+      { "from": "resources/native/msvcp140.dll", "to": "." },
+      { "from": "resources/native/msvcp140_1.dll", "to": "." },
+      { "from": "resources/native/vcruntime140.dll", "to": "." },
+      { "from": "resources/native/vcruntime140_1.dll", "to": "." }
+    ],
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }], "signAndEditExecutable": false },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "deleteAppDataOnUninstall": false }
+  }
+}
